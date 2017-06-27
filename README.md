@@ -18,6 +18,6 @@ Only downside: the maximum size of a file is 5MB, but if you enable resizing, wh
 * TinyPNG: the web service allows you to compress your PNG and JPG files. You can subscribe for a free plan enabling you to compress 500 images per month without any charges. Simply fill in your API key to get started.
 If you enable both compression services and TinyPNG fails for any reason, ReSmush will be used as a fallback.
 
-It is planned to support local compression using optipng/gisicle/jpegoptim in later versions.
+It is planned to support local compression using optipng/gifsicle/jpegoptim in later versions.
 
 Special thanks to Viktor Vogel for creating the plugin EIR, from which I took larger parts of the code.
