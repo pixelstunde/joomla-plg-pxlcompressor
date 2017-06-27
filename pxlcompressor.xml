@@ -20,7 +20,7 @@
         <language tag="de-DE">de-DE/de-DE.plg_system_pxlcompressor.sys.ini</language>
     </languages>
     <updateservers>
-        <server type="extension" priority="1" name="PLG_PXLCOMPRESSOR">https://127.0.0.1/updates/pxlcompressor.xml</server>
+        <server type="extension" priority="1" name="PLG_PXLCOMPRESSOR">https://pixelstun.de/extensions/joomla/plg_pxlcompressor/pxlcompressor.xml</server>
     </updateservers>
     <config>
         <fields name="params">
