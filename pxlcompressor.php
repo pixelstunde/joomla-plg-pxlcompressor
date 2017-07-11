@@ -158,23 +158,25 @@ class PlgSystemPxlcompressor extends JPlugin
 	protected function compressFile( $object, $showMessage = true  ) {
 		$result = false;
 		
-		if (false == $result && ! empty( $this->params->get( 'tinyPNGApiKey' ) ) ) {
-			$result = $this->compressFileTinyPNG( $object );
-			if ( $result !== false && $showMessage ) {
-				$this->successMessage( $object->size, $result , 'TinyPNG' );
+		if ( in_array( $object->type, $this->allowed_mime_types ) ) {
+			if (false == $result && ! empty( $this->params->get( 'tinyPNGApiKey' ) ) ) {
+				$result = $this->compressFileTinyPNG( $object );
+				if ( $result !== false && $showMessage ) {
+					$this->successMessage( $object->size, $result , 'TinyPNG' );
+				}
+				else{
+					$this->errorMessage('TinyPNG');
+				}
 			}
-			else{
-				$this->errorMessage('TinyPNG');
-			}
-		}
-		
-		if (false == $result && $this->params->get( 'resmush' ) ) {
-			$result = $this->compressFileResmush( $object );
-			if ( false  !== $result && $showMessage ) {
-				$this->successMessage( $object->size, $result , 'resmush' );
-			}
-			else{
-				$this->errorMessage('resmush');
+			
+			if (false == $result && $this->params->get( 'resmush' ) ) {
+				$result = $this->compressFileResmush( $object );
+				if ( false  !== $result && $showMessage ) {
+					$this->successMessage( $object->size, $result , 'resmush' );
+				}
+				else{
+					$this->errorMessage('resmush');
+				}
 			}
 		}
 	}
