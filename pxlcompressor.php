@@ -119,18 +119,18 @@ class PlgSystemPxlcompressor extends JPlugin
 	public function onContentAfterSave( $context, $object, $state ) {
 		//load language
 		$this->loadLanguage( '', JPATH_BASE );
-		
-		if ( $this->compressExternal ) {
-			$this->compressFile( $object );
-		}
-		else{
-			if ( $this->compressionState ) {
-				$this->successMessage( $object->size, filesize( $object->filepath ) );
-			}
-		}
-		
+				
 		if (  'com_media.file' == $context && ( ! empty( $object ) && is_object( $object ) ) && $state == true ) {
 
+			if ( $this->compressExternal ) {
+				$this->compressFile( $object );
+			}
+			else{
+				if ( $this->compressionState ) {
+					$this->successMessage( $object->size, filesize( $object->filepath ) );
+				}
+			}
+		
 			$multisizes = $this->params->get( 'multisizes' );
 
 			if ( ! empty( $multisizes ) ) {
