@@ -159,6 +159,7 @@ class PlgSystemPxlcompressor extends JPlugin
 		$result = false;
 		
 		if ( in_array( $object->type, $this->allowed_mime_types ) ) {
+			
 			if (false == $result && ! empty( $this->params->get( 'tinyPNGApiKey' ) ) ) {
 				$result = $this->compressFileTinyPNG( $object );
 				if ( $result !== false && $showMessage ) {
