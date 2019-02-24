@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension type="plugin" version="3.0" group="system" method="upgrade">
     <name>PLG_PXLCOMPRESSOR</name>
-    <version>1.0.2</version>
-    <creationDate>2017-07-11</creationDate>
+    <version>1.1</version>
+    <creationDate>2019-24-02</creationDate>
     <license>http://www.gnu.org/licenses/gpl</license>
     <copyright>Copyright 2017 pixelstun.de. All rights reserved.</copyright>
     <author>Christian Friedemann</author>
@@ -10,6 +10,7 @@
     <authorurl>https://pixelstun.de/</authorurl>
     <description>PLG_PXLCOMPRESSOR_XML_DESCRIPTION</description>
     <files>
+        <folder>libs</folder>
         <filename plugin="pxlcompressor">pxlcompressor.php</filename>
         <filename plugin="pxlcompressor">index.html</filename>
     </files>
@@ -20,39 +21,75 @@
         <language tag="de-DE">de-DE/de-DE.plg_system_pxlcompressor.sys.ini</language>
     </languages>
     <updateservers>
-        <server type="extension" priority="1" name="PLG_PXLCOMPRESSOR">https://pixelstun.de/extensions/joomla/plg_pxlcompressor/pxlcompressor.xml</server>
+        <server type="extension" priority="1" name="PLG_PXLCOMPRESSOR">
+            https://pixelstun.de/extensions/joomla/plg_pxlcompressor/pxlcompressor.xml
+        </server>
     </updateservers>
     <config>
         <fields name="params">
             <fieldset name="settings">
-                <field name="keepOriginal" type="checkbox" label="PLG_PXLCOMPRESSOR_KEEP_ORIGINAL" description="" value="1" default="0"/>
-                <field name="scale_method" type="list" default="2" label="PLG_PXLCOMPRESSOR_SCALE_METHOD" description="PLG_PXLCOMPRESSOR_SCALE_METHODDESC">
+                <field name="keepOriginal" type="checkbox" label="PLG_PXLCOMPRESSOR_KEEP_ORIGINAL" description=""
+                       value="1" default="0"/>
+                <field name="scale_method" type="list" default="2" label="PLG_PXLCOMPRESSOR_SCALE_METHOD"
+                       description="PLG_PXLCOMPRESSOR_SCALE_METHOD_DESC">
                     <option value="2">PLG_PXLCOMPRESSOR_SCALE_METHOD_SCALE_INSIDE</option>
                     <option value="3">PLG_PXLCOMPRESSOR_SCALE_METHOD_SCALE_OUTSIDE</option>
                     <option value="6">PLG_PXLCOMPRESSOR_SCALE_METHOD_SCALE_FIT</option>
                     <option value="1">PLG_PXLCOMPRESSOR_SCALE_METHOD_SCALE_FILL</option>
+                    <option value="4">PLG_PXLCOMPRESSOR_SCALE_METHOD_CROP</option>
+                    <option value="5">PLG_PXLCOMPRESSOR_SCALE_METHOD_CROP_RESIZE</option>
                 </field>
-                <field name="quality_jpg" type="integer" default="92" first="0" last="100" step="1" filter="integer" label="PLG_PXLCOMPRESSOR_QUALITYJPG" description="PLG_PXLCOMPRESSOR_QUALITYJPGDESC" />
-                <field name="compression_png" type="integer" default="8" first="0" last="9" step="1" autofocus="true" label="PLG_PXLCOMPRESSOR_COMPRESSIONPNG" description="PLG_PXLCOMPRESSOR_COMPRESSIONPNGDESC" />
-                <field name="safe_names" type="list" default="1" label="PLG_PXLCOMPRESSOR_SAFENAMES" description="PLG_PXLCOMPRESSOR_SAFENAMESDESC">
+                <field name="quality_jpg" type="integer" default="92" first="0" last="100" step="1" filter="integer"
+                       label="PLG_PXLCOMPRESSOR_QUALITYJPG" description="PLG_PXLCOMPRESSOR_QUALITYJPG_DESC"/>
+                <field name="compression_png" type="integer" default="8" first="0" last="9" step="1" autofocus="true"
+                       label="PLG_PXLCOMPRESSOR_COMPRESSIONPNG" description="PLG_PXLCOMPRESSOR_COMPRESSIONPNG_DESC"/>
+                <field name="safe_names" type="list" default="1" label="PLG_PXLCOMPRESSOR_SAFENAMES"
+                       description="PLG_PXLCOMPRESSOR_SAFENAMES_DESC">
                     <option value="0">JNO</option>
                     <option value="1">JYES</option>
                 </field>
-                <field name="enlarge_images" type="list" default="0" label="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES" description="PLG_PXLCOMPRESSOR_ENLARGE_IMAGESDESC">
+                <field name="enlarge_images" type="list" default="0" label="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES"
+                       description="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES_DESC">
                     <option value="0">JNO</option>
                     <option value="1">JYES</option>
                 </field>
-                
-                <field name="width" type="text" default="1000" filter="integer" label="PLG_PXLCOMPRESSOR_WIDTH" description="PLG_PXLCOMPRESSOR_WIDTHDESC" />
-                <field name="height" type="text" default="1000"  filter="integer" label="PLG_PXLCOMPRESSOR_HEIGHT" description="PLG_PXLCOMPRESSOR_HEIGHTDESC" />
-                
-                <field name="multisizes" type="textarea" default="" rows="5" cols="50" filter="raw" label="PLG_PXLCOMPRESSOR_MULTISIZES" description="PLG_PXLCOMPRESSOR_MULTISIZESDESC" />
-                <field name="multisize_path" type="text" default="" label="PLG_PXLCOMPRESSOR_MULTISIZE_PATH" description="PLG_PXLCOMPRESSOR_MULTISIZE_PATHDESC" />
+
+                <field name="width" type="text" default="1000" filter="integer" label="PLG_PXLCOMPRESSOR_WIDTH"
+                       description="PLG_PXLCOMPRESSOR_WIDTH_DESC"/>
+                <field name="height" type="text" default="1000" filter="integer" label="PLG_PXLCOMPRESSOR_HEIGHT"
+                       description="PLG_PXLCOMPRESSOR_HEIGHT_DESC"/>
+
+                <field name="multisizes" type="textarea" default="" rows="5" cols="50" filter="raw"
+                       label="PLG_PXLCOMPRESSOR_MULTISIZES" description="PLG_PXLCOMPRESSOR_MULTISIZES_DESC"/>
+                <field name="multisize_path" type="text" default="" label="PLG_PXLCOMPRESSOR_MULTISIZE_PATH"
+                       description="PLG_PXLCOMPRESSOR_MULTISIZE_PATH_DESC"/>
             </fieldset>
-            <fieldset name="compression">
-                <field name="compressExternal" type="checkbox" label="PLG_PXLCOMPRESSOR_ENABLE_COMPRESSION" description="" value="1" default="0"/>
-                <field name="tinyPNGApiKey" type="text" default="" label="PLG_PXLCOMPRESSOR_ENABLE_TINY_PNG_API" description="PLG_PXLCOMPRESSOR_ENABLE_TINY_PNG_API_DESC" size="10" />
-                <field name="resmush" type="checkbox" label="PLG_PXLCOMPRESSOR_RESMUSH" description="" value="1" default="0"/>
+            <fieldset name="images">
+
+                <field name="compressExternal" type="checkbox" label="PLG_PXLCOMPRESSOR_ENABLE_COMPRESSION"
+                       description="" value="1" default="0"/>
+                <field name="preserveMetadata" type="checkbox" label="PLG_PXLCOMPRESSOR_PRESERVE_METADATA"
+                       description="PLG_PXLCOMPRESSOR_PRESERVE_METADATA_DESC" value="1" default="0"/>
+
+                <field type="spacer" name="resmush_spacer" label="&lt;h3&gt;Resmush.IT&lt;/h3&gt;"/>
+                <field name="resmush" type="checkbox" label="PLG_PXLCOMPRESSOR_RESMUSH" description="" value="1"
+                       default="0"/>
+                <field type="spacer" name="tinypng_spacer" label="&lt;h3&gt;TinyPNG&lt;/h3&gt;"/>
+                <field name="tinyPNG" type="checkbox" label="PLG_PXLCOMPRESSOR_TINYPNG" description="" value="1"
+                       default="0"/>
+                <field name="tinyPNGApiKey" type="text" default="" label="PLG_PXLCOMPRESSOR_ENABLE_TINY_PNG_API"
+                       description="PLG_PXLCOMPRESSOR_ENABLE_TINY_PNG_API_DESC" size="10"/>
+
+            </fieldset>
+            <fieldset name="pdf">
+                <field name="compressPDF" type="checkbox" label="PLG_PXLCOMPRESSOR_ENABLE_COMPRESSION" description=""
+                       value="1" default="0"/>
+                <field type="spacer" name="ilovepdf_spacer" label="&lt;h3&gt;iLovePDF&lt;/h3&gt;"/>
+                <field name="ilovepdfPublic" type="text" default="" label="PLG_PXLCOMPRESSOR_ILOVEPDF_PROJECT"
+                       description="" size="64"/>
+                <field name="ilovepdfSecret" type="text" default="" label="PLG_PXLCOMPRESSOR_ILOVEPDF_SECRET"
+                       description="" size="64"/>
+
             </fieldset>
         </fields>
     </config>
