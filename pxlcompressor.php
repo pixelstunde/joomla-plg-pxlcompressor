@@ -3,7 +3,7 @@
  * @Copyright
  * @package        PXLCompressor
  * @author         Christian Friedemann <c.friedemann@pixelstun.de>, Viktor Vogel <admin@kubik-rubik.de>
- * @version        1.1 - 2019-02-24
+ * @version        1.2 - 2019-03-11
  * @link           https://pixelstun.de/blog/pxlcompressor
  * @todo           Add consistency in variable names
  *
@@ -60,45 +60,84 @@ class PlgSystemPxlcompressor extends JPlugin
 	}
 
 	/**
-	 * Creates safe image names for the Media Manager
+	 * Plugin uses the trigger onContentAfterSave to manipulate the multisize images
+	 *
+	 * @param string  $context
+	 * @param object  $object
+	 * @param boolean $state
 	 *
 	 * @since 1.0
 	 * @throws Exception
 	 */
-	private function makeNameSafe()
+	public function onContentAfterSave($context, $object, $state)
 	{
-		$input = JFactory::getApplication()->input;
+		//load language
+		$this->loadLanguage('', JPATH_BASE);
 
-		if (
-		('com_media' == $input->get('option') && 'file.upload' == $input->get('task'))
-		)
+		$triggerOn = ['com_media.file', 'com_jce.file'];
+
+		if (in_array($context, $triggerOn) && $this->checkObject($object) && $state == true)
 		{
-			$input_files = new JInputFiles();
-			$file_data   = $input_files->get('Filedata', array(), 'raw');
 
-			foreach ($file_data as $key => $file)
+			if ($this->compressImages || $this->compressPDF)
 			{
-				if (!empty($file['name']))
+				$this->compressFile($object);
+			}
+			else
+			{
+				if ($this->compressionState)
 				{
-					// UTF8 to ASCII
-					$file['name'] = JLanguageTransliterate::utf8_latin_to_ascii($file['name']);
+					$this->successMessage($object->size, filesize($object->filepath));
+				}
+			}
 
-					// Make image name safe with core function
-					jimport('joomla.filesystem.file');
-					$file['name'] = JFile::makeSafe($file['name']);
+			$multisizes = $this->params->get('multisizes');
 
-					// Replace whitespaces with underscores
-					$file['name'] = preg_replace('@\s+@', '-', $file['name']);
+			if (!empty($multisizes))
+			{
+				$multisizes_lines = array();
+				$this->createThumbnailFolder($object->filepath);
+				$multisizes = array_map('trim', explode("\n", $multisizes));
 
-					// Make a string lowercase
-					$file['name'] = strtolower($file['name']);
+				foreach ($multisizes as $multisizes_line)
+				{
+					$multisizes_lines[] = array_map('trim', explode('|', $multisizes_line));
+				}
 
-					// Set the name back directly to the global FILES variable
-					$_FILES['Filedata']['name'][$key] = $file['name'];
+				foreach ($multisizes_lines as $multisize_line)
+				{
+					// At least one value has to be set and not negative to execute the resizing process
+					if ((!empty($multisize_line[0]) && $multisize_line[0] >= 0) || (!empty($multisize_line[1]) && $multisize_line[1] >= 0))
+					{
+						$multisize_suffix = false;
+
+						if (!empty($multisize_line[2]))
+						{
+							$multisize_suffix = htmlspecialchars($multisize_line[2]);
+						}
+
+						$multisize_scale_method = $this->scale_method;
+
+						if (!empty($multisize_line[3]))
+						{
+							if (in_array((int) $multisize_line[3], array(1, 2, 3, 4, 5, 6)))
+							{
+								$multisize_scale_method = (int) $multisize_line[3];
+							}
+						}
+
+						$image_path = $this->resizeImage($object, $object->filepath, $multisize_line[0], $multisize_line[1], true, $multisize_suffix, $multisize_scale_method);
+
+						if ($this->compressImages)
+						{
+							$this->compressFile($object);
+						}
+					}
 				}
 			}
 		}
 	}
+
 
 	/**
 	 * Plugin uses the trigger onContentBeforeSave to manipulate the uploaded images
@@ -111,7 +150,10 @@ class PlgSystemPxlcompressor extends JPlugin
 	 */
 	public function onContentBeforeSave($context, $object, $state)
 	{
-		if ('com_media.file' == $context && (!empty($object) && is_object($object)) && true == $state)
+
+		$triggerOn = ['com_media.file', 'com_jce.file'];
+
+		if (in_array($context, $triggerOn) && $this->checkObject($object) && true == $state)
 		{
 			$this->setQualityJpg();
 			$this->setCompressionPng();
@@ -132,6 +174,31 @@ class PlgSystemPxlcompressor extends JPlugin
 	}
 
 	/**
+	 * Check if object is empty and fix mime type if not set
+	 *
+	 * @param $object
+	 *
+	 * @return bool
+	 * @since 1.2
+	 */
+	private function checkObject(&$object)
+	{
+		if (!empty($object) && is_object($object))
+		{
+			if (empty($object->type))
+			{
+				//jce does not seem give type information as com_media, so we'll guess by extension
+				$object->type = mime_content_type($object->filepath);
+
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Checks and triggers file compression
 	 *
 	 * @param      $object
@@ -140,9 +207,9 @@ class PlgSystemPxlcompressor extends JPlugin
 	 * @throws Exception
 	 * @since 1.0
 	 */
-
 	protected function compressFile($object, $showMessage = true)
 	{
+
 		$result = false;
 
 		if (in_array($object->type, $this->allowed_mime_types) && $this->compressImages)
@@ -269,7 +336,7 @@ class PlgSystemPxlcompressor extends JPlugin
 		$apiKey   = $this->params->get('tinyPNGApiKey', '');
 
 		$httpInterface = JHttpFactory::getHttp();
-		//html basic authorization 
+		//html basic authorization
 		$httpInterface->setOption('headers.Authorization', 'Basic ' . base64_encode('api:' . $apiKey));
 		$response = $httpInterface->post($endpoint, file_get_contents($object->filepath));
 
@@ -361,30 +428,29 @@ class PlgSystemPxlcompressor extends JPlugin
 		}
 	}
 
+
 	/**
-	 * Enqueue success message
+	 * Creates thumbnail folder if it does not exist yet
 	 *
-	 * @param int    $in      size of input file (byte)
-	 * @param int    $out     size of output
-	 * @param string $service compression service used
+	 * @param $image_path_original
 	 *
 	 * @return null
 	 * @since 1.0
-	 * @throws Exception
 	 */
-	protected function successMessage($in, $out, $service = '')
+	private function createThumbnailFolder($image_path_original)
 	{
-		if (0 == $in)
+		$this->multisize_path = dirname($image_path_original);
+		$multisize_path       = $this->params->get('multisize_path', '');
+
+		if (!empty($multisize_path))
 		{
-			return;
+			$this->multisize_path .= '/' . $multisize_path;
 		}
-		$service     = empty ($service) ? '' : '. ' . JText::_('PLG_PXLCOMPRESSOR_COMPRESSION_SERVICE_USED') . ' ' . $service;
-		$compression = round((1 - ($out / $in)) * 100, 2);
-		JFactory::getApplication()->enqueueMessage(
-			JText::_('PLG_PXLCOMPRESSOR_COMPRESSED_PERCENT') . ' ' . $compression
-			. '% ( ' . ceil($in / 1024) . ' kiB → ' . ceil($out / 1024) . ' kiB )'
-			. $service
-		);
+
+		if (!JFolder::exists($this->multisize_path))
+		{
+			JFolder::create($this->multisize_path);
+		}
 	}
 
 	/**
@@ -417,41 +483,107 @@ class PlgSystemPxlcompressor extends JPlugin
 		return JURI::root() . substr(str_replace(JPATH_ROOT, '', $localFile), 1);
 	}
 
+
 	/**
-	 * Set the quality of JPG images - 0 to 100
+	 * Gets needed information for the image manipulating process
 	 *
-	 * @return null
+	 * @param string $mime_type
+	 *
+	 * @return array
 	 * @since 1.0
 	 */
-	private function setQualityJpg()
+	private function getImageInformation($mime_type)
 	{
-		$this->quality_jpg = (int) $this->params->get('quality_jpg', 80);
+		$image_information = array('type' => IMAGETYPE_JPEG, 'quality' => $this->quality_jpg);
 
-		// Set default value if entered value is out of range
-		if ($this->quality_jpg < 0 || $this->quality_jpg > 100)
+		if ('image/gif' == $mime_type)
 		{
-			$this->quality_jpg = 80;
+			$image_information = array('type' => IMAGETYPE_GIF, 'quality' => '');
 		}
+		else if ('image/png' == $mime_type)
+		{
+			$image_information = array('type' => IMAGETYPE_PNG, 'quality' => $this->compression_png);
+		}
+		//not supported by JImage (yet)
+		//@todo still true?
+		//else if ( 'image/bmp' == $mime_type){
+		//	$image_information = array( 'type' => IMAGETYPE_BMP, 'quality' => $this->quality_jpg );
+		//}
+		//else if ( 'image/tiff' == $mime_type ){
+		//	//assume intel byte order
+		//	$image_information = array( 'type' => IMAGETYPE_TIFF_II, 'quality' => $this->quality_jpg );
+		//}
+		return $image_information;
+	}
+
+
+	/**
+	 * Creates the full path, including the name of the thumbnail
+	 *
+	 * @param $image_path_original
+	 * @param $width
+	 * @param $height
+	 * @param $multisize_suffix
+	 *
+	 * @return string
+	 * @since 1.0
+	 */
+	private function getThumbnailPath($image_path_original, $width, $height, $multisize_suffix = false)
+	{
+		$image_extension     = '.' . JFile::getExt(basename($image_path_original));
+		$image_name_original = basename($image_path_original, $image_extension);
+
+		$image_name_suffix = $width . 'w';
+
+		if (!empty($multisize_suffix))
+		{
+			$image_name_suffix = $multisize_suffix;
+		}
+
+		return $this->multisize_path . '/' . $image_name_original . '-' . $image_name_suffix . $image_extension;
 	}
 
 	/**
-	 * Sets the compression level of PNG images - 0 to 9
+	 * Creates safe image names for the Media Manager
 	 *
-	 * @param null
-	 *
-	 * @return null
 	 * @since 1.0
+	 * @throws Exception
 	 */
-	private function setCompressionPng()
+	private function makeNameSafe()
 	{
-		$this->compression_png = (int) $this->params->get('compression_png', 6);
+		$input = JFactory::getApplication()->input;
 
-		// Set default value if entered value is out of range
-		if (0 > $this->compression_png || 9 < $this->compression_png)
+		if (
+		('com_media' == $input->get('option') && 'file.upload' == $input->get('task'))
+		)
 		{
-			$this->compression_png = 6;
+			$input_files = new JInputFiles();
+			$file_data   = $input_files->get('Filedata', array(), 'raw');
+
+			foreach ($file_data as $key => $file)
+			{
+				if (!empty($file['name']))
+				{
+					// UTF8 to ASCII
+					$file['name'] = JLanguageTransliterate::utf8_latin_to_ascii($file['name']);
+
+					// Make image name safe with core function
+					jimport('joomla.filesystem.file');
+					$file['name'] = JFile::makeSafe($file['name']);
+
+					// Replace whitespaces with underscores
+					$file['name'] = preg_replace('@\s+@', '-', $file['name']);
+
+					// Make a string lowercase
+					$file['name'] = strtolower($file['name']);
+
+					// Set the name back directly to the global FILES variable
+					$_FILES['Filedata']['name'][$key] = $file['name'];
+				}
+			}
 		}
 	}
+
 
 	/**
 	 * Resizes images using Joomla! core class JImage
@@ -519,162 +651,67 @@ class PlgSystemPxlcompressor extends JPlugin
 		return false;
 	}
 
-	/**
-	 * Creates the full path, including the name of the thumbnail
-	 *
-	 * @param $image_path_original
-	 * @param $width
-	 * @param $height
-	 * @param $multisize_suffix
-	 *
-	 * @return string
-	 * @since 1.0
-	 */
-	private function getThumbnailPath($image_path_original, $width, $height, $multisize_suffix = false)
-	{
-		$image_extension     = '.' . JFile::getExt(basename($image_path_original));
-		$image_name_original = basename($image_path_original, $image_extension);
-
-		$image_name_suffix = $width . 'x' . $height;
-
-		if (!empty($multisize_suffix))
-		{
-			$image_name_suffix = $multisize_suffix;
-		}
-
-		return $this->multisize_path . '/' . $image_name_original . '-' . $image_name_suffix . $image_extension;
-	}
 
 	/**
-	 * Gets needed information for the image manipulating process
-	 *
-	 * @param string $mime_type
-	 *
-	 * @return array
-	 * @since 1.0
-	 */
-	private function getImageInformation($mime_type)
-	{
-		$image_information = array('type' => IMAGETYPE_JPEG, 'quality' => $this->quality_jpg);
-
-		if ('image/gif' == $mime_type)
-		{
-			$image_information = array('type' => IMAGETYPE_GIF, 'quality' => '');
-		}
-		else if ('image/png' == $mime_type)
-		{
-			$image_information = array('type' => IMAGETYPE_PNG, 'quality' => $this->compression_png);
-		}
-		//not supported by JImage (yet)
-		//@todo still true?
-		//else if ( 'image/bmp' == $mime_type){
-		//	$image_information = array( 'type' => IMAGETYPE_BMP, 'quality' => $this->quality_jpg );
-		//}
-		//else if ( 'image/tiff' == $mime_type ){
-		//	//assume intel byte order
-		//	$image_information = array( 'type' => IMAGETYPE_TIFF_II, 'quality' => $this->quality_jpg );
-		//}
-		return $image_information;
-	}
-
-	/**
-	 * Plugin uses the trigger onContentAfterSave to manipulate the multisize images
-	 *
-	 * @param string  $context
-	 * @param object  $object
-	 * @param boolean $state
-	 *
-	 * @since 1.0
-	 * @throws Exception
-	 */
-	public function onContentAfterSave($context, $object, $state)
-	{
-		//load language
-		$this->loadLanguage('', JPATH_BASE);
-
-		if ('com_media.file' == $context && (!empty($object) && is_object($object)) && $state == true)
-		{
-
-			if ($this->compressImages || $this->compressPDF)
-			{
-				$this->compressFile($object);
-			}
-			else
-			{
-				if ($this->compressionState)
-				{
-					$this->successMessage($object->size, filesize($object->filepath));
-				}
-			}
-
-			$multisizes = $this->params->get('multisizes');
-
-			if (!empty($multisizes))
-			{
-				$multisizes_lines = array();
-				$this->createThumbnailFolder($object->filepath);
-				$multisizes = array_map('trim', explode("\n", $multisizes));
-
-				foreach ($multisizes as $multisizes_line)
-				{
-					$multisizes_lines[] = array_map('trim', explode('|', $multisizes_line));
-				}
-
-				foreach ($multisizes_lines as $multisize_line)
-				{
-					// At least one value has to be set and not negative to execute the resizing process
-					if ((!empty($multisize_line[0]) && $multisize_line[0] >= 0) || (!empty($multisize_line[1]) && $multisize_line[1] >= 0))
-					{
-						$multisize_suffix = false;
-
-						if (!empty($multisize_line[2]))
-						{
-							$multisize_suffix = htmlspecialchars($multisize_line[2]);
-						}
-
-						$multisize_scale_method = $this->scale_method;
-
-						if (!empty($multisize_line[3]))
-						{
-							if (in_array((int) $multisize_line[3], array(1, 2, 3, 4, 5, 6)))
-							{
-								$multisize_scale_method = (int) $multisize_line[3];
-							}
-						}
-
-						$image_path = $this->resizeImage($object, $object->filepath, $multisize_line[0], $multisize_line[1], true, $multisize_suffix, $multisize_scale_method);
-
-						if ($this->compressImages)
-						{
-							$this->compressFile($object);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Creates thumbnail folder if it does not exist yet
-	 *
-	 * @param $image_path_original
+	 * Set the quality of JPG images - 0 to 100
 	 *
 	 * @return null
 	 * @since 1.0
 	 */
-	private function createThumbnailFolder($image_path_original)
+	private function setQualityJpg()
 	{
-		$this->multisize_path = dirname($image_path_original);
-		$multisize_path       = $this->params->get('multisize_path', '');
+		$this->quality_jpg = (int) $this->params->get('quality_jpg', 80);
 
-		if (!empty($multisize_path))
+		// Set default value if entered value is out of range
+		if ($this->quality_jpg < 0 || $this->quality_jpg > 100)
 		{
-			$this->multisize_path .= '/' . $multisize_path;
-		}
-
-		if (!JFolder::exists($this->multisize_path))
-		{
-			JFolder::create($this->multisize_path);
+			$this->quality_jpg = 80;
 		}
 	}
+
+	/**
+	 * Sets the compression level of PNG images - 0 to 9
+	 *
+	 * @param null
+	 *
+	 * @return null
+	 * @since 1.0
+	 */
+	private function setCompressionPng()
+	{
+		$this->compression_png = (int) $this->params->get('compression_png', 6);
+
+		// Set default value if entered value is out of range
+		if (0 > $this->compression_png || 9 < $this->compression_png)
+		{
+			$this->compression_png = 6;
+		}
+	}
+
+	/**
+	 * Enqueue success message
+	 *
+	 * @param int    $in      size of input file (byte)
+	 * @param int    $out     size of output
+	 * @param string $service compression service used
+	 *
+	 * @return null
+	 * @since 1.0
+	 * @throws Exception
+	 */
+	protected function successMessage($in, $out, $service = '')
+	{
+		if (0 == $in)
+		{
+			return;
+		}
+		$service     = empty ($service) ? '' : '. ' . JText::_('PLG_PXLCOMPRESSOR_COMPRESSION_SERVICE_USED') . ' ' . $service;
+		$compression = round((1 - ($out / $in)) * 100, 2);
+		JFactory::getApplication()->enqueueMessage(
+			JText::_('PLG_PXLCOMPRESSOR_COMPRESSED_PERCENT') . ' ' . $compression
+			. '% ( ' . ceil($in / 1024) . ' kiB → ' . ceil($out / 1024) . ' kiB )'
+			. $service
+		);
+	}
+
 }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension type="plugin" version="3.0" group="system" method="upgrade">
     <name>PLG_PXLCOMPRESSOR</name>
-    <version>1.1</version>
+    <version>1.2</version>
     <creationDate>2019-24-02</creationDate>
     <license>http://www.gnu.org/licenses/gpl</license>
-    <copyright>Copyright 2017 pixelstun.de. All rights reserved.</copyright>
+    <copyright>Copyright 2019 pixelstun.de. All rights reserved.</copyright>
     <author>Christian Friedemann</author>
     <authoremail>c.friedemann@pixelstun.de</authoremail>
     <authorurl>https://pixelstun.de/</authorurl>
