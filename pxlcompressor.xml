@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension type="plugin" version="3.0" group="system" method="upgrade">
     <name>PLG_PXLCOMPRESSOR</name>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <creationDate>2019-24-02</creationDate>
     <license>http://www.gnu.org/licenses/gpl</license>
     <copyright>Copyright 2019 pixelstun.de. All rights reserved.</copyright>

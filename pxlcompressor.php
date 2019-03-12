@@ -3,7 +3,7 @@
  * @Copyright
  * @package        PXLCompressor
  * @author         Christian Friedemann <c.friedemann@pixelstun.de>, Viktor Vogel <admin@kubik-rubik.de>
- * @version        1.2 - 2019-03-11
+ * @version        1.2.1 - 2019-03-11
  * @link           https://pixelstun.de/blog/pxlcompressor
  * @todo           Add consistency in variable names
  *
@@ -189,6 +189,7 @@ class PlgSystemPxlcompressor extends JPlugin
 			{
 				//jce does not seem give type information as com_media, so we'll guess by extension
 				$moved = mime_content_type($object->filepath);
+
 				if (!empty($moved))
 				{
 					$object->type = $moved;
