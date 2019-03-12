@@ -188,13 +188,18 @@ class PlgSystemPxlcompressor extends JPlugin
 			if (empty($object->type))
 			{
 				//jce does not seem give type information as com_media, so we'll guess by extension
-				$object->type = mime_content_type($object->filepath);
-
+				$moved = mime_content_type($object->filepath);
+				if (!empty($moved))
+				{
+					$object->type = $moved;
+				}
+				else
+				{
+					$object->type = mime_content_type($object->tmp_name);
+				}
 			}
-
 			return true;
 		}
-
 		return false;
 	}
 
@@ -613,7 +618,7 @@ class PlgSystemPxlcompressor extends JPlugin
 				$image_object->toFile($filePath, $image_information['type']);
 			}
 
-			if (!empty($multisize_scale_method) AND in_array($multisize_scale_method, array(1, 2, 3, 4, 5, 6)))
+			if (!empty($multisize_scale_method) && in_array($multisize_scale_method, array(1, 2, 3, 4, 5, 6)))
 			{
 				$scale_method = (int) $multisize_scale_method;
 			}
