@@ -23,6 +23,9 @@
  *
  * @copyright      pixelstun.de
  */
+
+use Joomla\CMS\Date\Date;
+
 defined('_JEXEC') or die('Restricted access');
 
 require_once(__DIR__ . '/libs/ilovepdf/init.php');
@@ -39,14 +42,16 @@ class PlgSystemPxlcompressor extends JPlugin
 	protected $allowed_mime_types = array('image/jpeg', 'image/png', 'image/gif');
 	protected $compressImages = false;
 	protected $compressPDF = false;
-	protected $overrideUploadStructure = true;
+	protected $overrideUploadStructure = false;
+	protected $addDateTimeToFileName = false;
 
 	function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
-		$this->compressImages = (bool) $this->params->get('compressExternal');
-		$this->compressPDF    = (bool) $this->params->get('compressPDF');
-//		$this->compressPDF    = (bool) $this->params->get('compressPDF');
+		$this->compressImages          = (bool) $this->params->get('compressExternal');
+		$this->compressPDF             = (bool) $this->params->get('compressPDF');
+		$this->overrideUploadStructure = (bool) $this->params->get('overrideUploadStructure');
+		$this->addDateTimeToFileName   = (bool) $this->params->get('addDateTimeToFileName');
 	}
 
 	/**
@@ -169,8 +174,14 @@ class PlgSystemPxlcompressor extends JPlugin
 			{
 				if ($this->overrideUploadStructure)
 				{
+					$object->filepath = $this->overrideUploadDirectory() . '/' . $object->name;
+				}
 
-					$object->filepath = $this->overrideUploadDirectory() .'/'. $object->name;
+				if ($this->addDateTimeToFileName)
+				{
+					$date = (new Date())->format('Ymd-Hi_');
+					$object->name     = $date . $object->name;
+					$object->filepath = pathinfo($object->filepath)['dirname'] . '/' . $object->name;
 				}
 
 				if (false !== $this->resizeImage($object, $object->tmp_name, $width, $height, false))
@@ -183,9 +194,11 @@ class PlgSystemPxlcompressor extends JPlugin
 
 	public function overrideUploadDirectory()
 	{
-		$year  = date('Y');
-		$month = date('m');
-		$day   = date('d');
+		$date = new Date();
+
+		$year  = $date->format('Y');
+		$month = $date->format('m');
+		$day   = $date->format('d');
 
 		$path = JPATH_ROOT . '/images/' . $year . '/' . $month . '/' . $day;
 		if (!JFolder::exists($path))

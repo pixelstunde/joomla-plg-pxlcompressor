@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension type="plugin" version="3.0" group="system" method="upgrade">
     <name>PLG_PXLCOMPRESSOR</name>
-    <version>1.2.2</version>
-    <creationDate>2019-24-02</creationDate>
+    <version>1.3</version>
+    <creationDate>2019-10-29</creationDate>
     <license>http://www.gnu.org/licenses/gpl</license>
     <copyright>Copyright 2019 pixelstun.de. All rights reserved.</copyright>
     <author>Christian Friedemann</author>
@@ -32,6 +32,8 @@
                        value="1" default="0"/>
                 <field name="overrideUploadStructure" type="checkbox" label="PLG_PXLCOMPRESSOR_KEEP_OVERRIDE_UPLOAD_STRUCTURE" description="PLG_PXLCOMPRESSOR_KEEP_OVERRIDE_UPLOAD_STRUCTURE_DESC"
                        value="1" default="0"/>
+                <field name="addDateTimeToFileName" type="checkbox" label="PLG_PXLCOMPRESSOR_ADD_DATETIMEONUPLOAD" description="PLG_PXLCOMPRESSOR_ADD_DATETIMEONUPLOAD_DESC"
+                       value="1" default="0"/>
                 <field name="scale_method" type="list" default="2" label="PLG_PXLCOMPRESSOR_SCALE_METHOD"
                        description="PLG_PXLCOMPRESSOR_SCALE_METHOD_DESC">
                     <option value="2">PLG_PXLCOMPRESSOR_SCALE_METHOD_SCALE_INSIDE</option>
@@ -56,9 +58,9 @@
                     <option value="1">JYES</option>
                 </field>
 
-                <field name="width" type="text" default="1000" filter="integer" label="PLG_PXLCOMPRESSOR_WIDTH"
+                <field name="width" type="text" default="1920" filter="integer" label="PLG_PXLCOMPRESSOR_WIDTH"
                        description="PLG_PXLCOMPRESSOR_WIDTH_DESC"/>
-                <field name="height" type="text" default="1000" filter="integer" label="PLG_PXLCOMPRESSOR_HEIGHT"
+                <field name="height" type="text" default="1080" filter="integer" label="PLG_PXLCOMPRESSOR_HEIGHT"
                        description="PLG_PXLCOMPRESSOR_HEIGHT_DESC"/>
 
                 <field name="multisizes" type="textarea" default="" rows="5" cols="50" filter="raw"
