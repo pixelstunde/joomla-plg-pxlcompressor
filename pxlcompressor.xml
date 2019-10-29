@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension type="plugin" version="3.0" group="system" method="upgrade">
     <name>PLG_PXLCOMPRESSOR</name>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <creationDate>2019-24-02</creationDate>
     <license>http://www.gnu.org/licenses/gpl</license>
     <copyright>Copyright 2019 pixelstun.de. All rights reserved.</copyright>
@@ -29,6 +29,8 @@
         <fields name="params">
             <fieldset name="settings">
                 <field name="keepOriginal" type="checkbox" label="PLG_PXLCOMPRESSOR_KEEP_ORIGINAL" description=""
+                       value="1" default="0"/>
+                <field name="overrideUploadStructure" type="checkbox" label="PLG_PXLCOMPRESSOR_KEEP_OVERRIDE_UPLOAD_STRUCTURE" description="PLG_PXLCOMPRESSOR_KEEP_OVERRIDE_UPLOAD_STRUCTURE_DESC"
                        value="1" default="0"/>
                 <field name="scale_method" type="list" default="2" label="PLG_PXLCOMPRESSOR_SCALE_METHOD"
                        description="PLG_PXLCOMPRESSOR_SCALE_METHOD_DESC">

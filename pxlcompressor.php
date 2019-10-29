@@ -39,12 +39,14 @@ class PlgSystemPxlcompressor extends JPlugin
 	protected $allowed_mime_types = array('image/jpeg', 'image/png', 'image/gif');
 	protected $compressImages = false;
 	protected $compressPDF = false;
+	protected $overrideUploadStructure = true;
 
 	function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
 		$this->compressImages = (bool) $this->params->get('compressExternal');
 		$this->compressPDF    = (bool) $this->params->get('compressPDF');
+//		$this->compressPDF    = (bool) $this->params->get('compressPDF');
 	}
 
 	/**
@@ -66,8 +68,8 @@ class PlgSystemPxlcompressor extends JPlugin
 	 * @param object  $object
 	 * @param boolean $state
 	 *
-	 * @since 1.0
 	 * @throws Exception
+	 * @since 1.0
 	 */
 	public function onContentAfterSave($context, $object, $state)
 	{
@@ -165,12 +167,33 @@ class PlgSystemPxlcompressor extends JPlugin
 			// At least one value has to be set and not negative to execute the resizing process
 			if ((!empty($width) && $width >= 0) || (!empty($height) && $height >= 0))
 			{
+				if ($this->overrideUploadStructure)
+				{
+
+					$object->filepath = $this->overrideUploadDirectory() .'/'. $object->name;
+				}
+
 				if (false !== $this->resizeImage($object, $object->tmp_name, $width, $height, false))
 				{
 					$this->compressionState = true;
-				};
+				}
 			}
 		}
+	}
+
+	public function overrideUploadDirectory()
+	{
+		$year  = date('Y');
+		$month = date('m');
+		$day   = date('d');
+
+		$path = JPATH_ROOT . '/images/' . $year . '/' . $month . '/' . $day;
+		if (!JFolder::exists($path))
+		{
+			JFolder::create($path);
+		}
+
+		return $path;
 	}
 
 	/**
@@ -199,8 +222,10 @@ class PlgSystemPxlcompressor extends JPlugin
 					$object->type = mime_content_type($object->tmp_name);
 				}
 			}
+
 			return true;
 		}
+
 		return false;
 	}
 
@@ -249,7 +274,7 @@ class PlgSystemPxlcompressor extends JPlugin
 		}
 		else if ('application/pdf' == $object->type && $this->compressPDF)
 		{
-			$result = $this->compressFileILovePDF($object);
+			$this->compressFileILovePDF($object);
 		}
 	}
 
@@ -259,8 +284,8 @@ class PlgSystemPxlcompressor extends JPlugin
 	 * @param object $object
 	 *
 	 * @return bool success
-	 * @since 1.0
 	 * @throws Exception
+	 * @since 1.0
 	 */
 	protected function compressFileResmush($object)
 	{
@@ -321,8 +346,8 @@ class PlgSystemPxlcompressor extends JPlugin
 	 * @param Object $object
 	 *
 	 * @return bool success
-	 * @since 1.0
 	 * @throws Exception
+	 * @since 1.0
 	 */
 	protected function compressFileTinyPNG($object)
 	{
@@ -379,13 +404,11 @@ class PlgSystemPxlcompressor extends JPlugin
 	 */
 	private function compressFileILovePDF($object)
 	{
-		$secret = $this->params->get('ilovepdfSecret', '');
-		$public = $this->params->get('ilovepdfPublic', '');
-		$error  = '';
+		$error = '';
 
 		try
 		{
-			$ilovepdf = new Ilovepdf($public, $secret);
+			$ilovepdf = new Ilovepdf($this->params->get('ilovepdfPublic', ''), $this->params->get('ilovepdfSecret', ''));
 			$myTask   = $ilovepdf->newTask('compress');
 			$myTask->addFile($object->filepath);
 			$myTask->execute();
@@ -465,8 +488,8 @@ class PlgSystemPxlcompressor extends JPlugin
 	 * @param string $service compression service used
 	 *
 	 * @return null
-	 * @since 1.0
 	 * @throws Exception
+	 * @since 1.0
 	 */
 
 	protected function errorMessage($service)
@@ -552,8 +575,8 @@ class PlgSystemPxlcompressor extends JPlugin
 	/**
 	 * Creates safe image names for the Media Manager
 	 *
-	 * @since 1.0
 	 * @throws Exception
+	 * @since 1.0
 	 */
 	private function makeNameSafe()
 	{
@@ -702,8 +725,8 @@ class PlgSystemPxlcompressor extends JPlugin
 	 * @param string $service compression service used
 	 *
 	 * @return null
-	 * @since 1.0
 	 * @throws Exception
+	 * @since 1.0
 	 */
 	protected function successMessage($in, $out, $service = '')
 	{
