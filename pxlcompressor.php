@@ -68,6 +68,7 @@ class PlgSystemPxlcompressor extends CMSPlugin
 	protected $scaleMethod = 1;
 	protected $triggerOn = ['com_media.file', 'com_jce.file'];
 
+
 	function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
@@ -99,11 +100,10 @@ class PlgSystemPxlcompressor extends CMSPlugin
 	 * @throws Exception
 	 * @since 1.0
 	 */
-	public function onContentAfterSave($context, $object, $state)
+	public function onContentAfterSave($context, &$object, $state)
 	{
 		//load language
 		$this->loadLanguage('', JPATH_BASE);
-
 
 		if ($this->checkContext($context) && $this->checkObject($object) && $state == true)
 		{
@@ -164,6 +164,7 @@ class PlgSystemPxlcompressor extends CMSPlugin
 					}
 				}
 			}
+			$this->moveOutputfile($object);
 		}
 	}
 
@@ -191,18 +192,6 @@ class PlgSystemPxlcompressor extends CMSPlugin
 			// At least one value has to be set and not negative to execute the resizing process
 			if ((!empty($width) && $width >= 0) || (!empty($height) && $height >= 0))
 			{
-				if ($this->overrideUploadStructure)
-				{
-					$object->filepath = $this->overrideUploadDirectory() . '/' . $object->name;
-				}
-
-				if ($this->addDateTimeToFileName)
-				{
-					$date             = (new Date())->format('Ymd-Hi_');
-					$object->name     = $date . $object->name;
-					$object->filepath = pathinfo($object->filepath)['dirname'] . '/' . $object->name;
-				}
-
 				if (false !== $this->resizeImage($object, $object->tmp_name, $width, $height, false))
 				{
 					$this->compressionState = true;
@@ -211,21 +200,18 @@ class PlgSystemPxlcompressor extends CMSPlugin
 		}
 	}
 
-	public function overrideUploadDirectory()
+
+	/**
+	 * Check context of current component
+	 *
+	 * @param String $context
+	 *
+	 * @return bool
+	 * @since 1.4
+	 */
+	private function checkContext($context)
 	{
-		$date = new Date();
-
-		$year  = $date->format('Y');
-		$month = $date->format('m');
-		$day   = $date->format('d');
-
-		$path = JPATH_ROOT . '/images/' . $year . '/' . $month . '/' . $day;
-		if (!Folder::exists($path))
-		{
-			Folder::create($path);
-		}
-
-		return $path;
+		return in_array($context, $this->triggerOn);
 	}
 
 	/**
@@ -604,6 +590,7 @@ class PlgSystemPxlcompressor extends CMSPlugin
 	{
 		$input   = Factory::getApplication()->input;
 		$context = $input->get('option');
+
 		if (($context == 'com_media') && 'file.upload' == $input->get('task'))
 		{
 			$input_files = new Files();
@@ -630,6 +617,63 @@ class PlgSystemPxlcompressor extends CMSPlugin
 				}
 			}
 		}
+	}
+
+	/**
+	 * Move output file if needed to. This is a failsafe function, because jce seems to override the file, so we move it after saving
+	 *
+	 * @param $object
+	 *
+	 * @return bool true if moved
+	 * @since 1,4
+	 */
+
+	protected function moveOutputfile($object)
+	{
+		$original = $object->filepath;
+
+		if ($this->overrideUploadStructure)
+		{
+			$object->filepath = $this->overrideUploadDirectory() . '/' . $object->name;
+		}
+
+		if ($this->addDateTimeToFileName)
+		{
+			$date             = (new Date())->format('Ymd-Hi_');
+			$object->name     = $date . $object->name;
+			$object->filepath = pathinfo($object->filepath)['dirname'] . '/' . $object->name;
+		}
+
+		if ($object->filepath != $original)
+		{
+			File::move($original, $object->filepath);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Override upload directory if needed
+	 *
+	 * @return string
+	 * @since 1.3
+	 */
+	public function overrideUploadDirectory()
+	{
+		$date = new Date();
+
+		$year  = $date->format('Y');
+		$month = $date->format('m');
+		$day   = $date->format('d');
+
+		$path = JPATH_ROOT . '/images/' . $year . '/' . $month . '/' . $day;
+		if (!Folder::exists($path))
+		{
+			Folder::create($path);
+		}
+
+		return $path;
 	}
 
 
@@ -772,16 +816,4 @@ class PlgSystemPxlcompressor extends CMSPlugin
 		);
 	}
 
-	/**
-	 * Check context of current component
-	 *
-	 * @param String $context
-	 *
-	 * @return bool
-	 * @since 1.4
-	 */
-	private function checkContext($context)
-	{
-		return in_array($context, $this->triggerOn);
-	}
 }
