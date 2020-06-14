@@ -601,22 +601,34 @@ class PlgSystemPxlcompressor extends CMSPlugin
 			{
 				if (!empty($file['name']))
 				{
-					// UTF8 to ASCII
-					$file['name'] = Transliterate::utf8_latin_to_ascii($file['name']);
-					// Make image name safe with core function
-					$file['name'] = File::makeSafe($file['name']);
-
-					// Replace whitespaces with underscores
-					$file['name'] = preg_replace('@\s+@', '-', $file['name']);
-
-					// Make a string lowercase
-					$file['name'] = strtolower($file['name']);
-
 					// Set the name back directly to the global FILES variable
-					$_FILES['Filedata']['name'][$key] = $file['name'];
+					$_FILES['Filedata']['name'][$key] = self::getSafeFileName($file['name']);
 				}
 			}
 		}
+	}
+
+
+	/**
+	 * Get a safe file name
+	 *
+	 * @param String $file
+	 *
+	 * @return string file name
+	 * @since 1.4
+	 */
+	public static function getSafeFileName(String $file){
+
+		// UTF8 to ASCII
+		$file = Transliterate::utf8_latin_to_ascii($file);
+		// Make image name safe with core function
+		$file = File::makeSafe($file);
+		// Replace whitespaces with underscores
+		$file = preg_replace('@\s+@', '-', $file);
+		// Make a string lowercase
+		$file = strtolower($file);
+
+		return $file;
 	}
 
 	/**
@@ -634,13 +646,13 @@ class PlgSystemPxlcompressor extends CMSPlugin
 
 		if ($this->overrideUploadStructure)
 		{
-			$object->filepath = $this->overrideUploadDirectory() . '/' . $object->name;
+			$object->filepath = $this->overrideUploadDirectory() . '/' . self::getSafeFileName($object->name);
 		}
 
 		if ($this->addDateTimeToFileName)
 		{
 			$date             = (new Date())->format('Ymd-Hi_');
-			$object->name     = $date . $object->name;
+			$object->name     = $date . self::getSafeFileName($object->name);
 			$object->filepath = pathinfo($object->filepath)['dirname'] . '/' . $object->name;
 		}
 
