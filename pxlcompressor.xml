@@ -30,9 +30,12 @@
             <fieldset name="settings">
                 <field name="keepOriginal" type="checkbox" label="PLG_PXLCOMPRESSOR_KEEP_ORIGINAL" description=""
                        value="1" default="0"/>
-                <field name="overrideUploadStructure" type="checkbox" label="PLG_PXLCOMPRESSOR_KEEP_OVERRIDE_UPLOAD_STRUCTURE" description="PLG_PXLCOMPRESSOR_KEEP_OVERRIDE_UPLOAD_STRUCTURE_DESC"
+                <field name="overrideUploadStructure" type="checkbox"
+                       label="PLG_PXLCOMPRESSOR_KEEP_OVERRIDE_UPLOAD_STRUCTURE"
+                       description="PLG_PXLCOMPRESSOR_KEEP_OVERRIDE_UPLOAD_STRUCTURE_DESC"
                        value="1" default="0"/>
-                <field name="addDateTimeToFileName" type="checkbox" label="PLG_PXLCOMPRESSOR_ADD_DATETIMEONUPLOAD" description="PLG_PXLCOMPRESSOR_ADD_DATETIMEONUPLOAD_DESC"
+                <field name="addDateTimeToFileName" type="checkbox" label="PLG_PXLCOMPRESSOR_ADD_DATETIMEONUPLOAD"
+                       description="PLG_PXLCOMPRESSOR_ADD_DATETIMEONUPLOAD_DESC"
                        value="1" default="0"/>
                 <field name="scale_method" type="list" default="2" label="PLG_PXLCOMPRESSOR_SCALE_METHOD"
                        description="PLG_PXLCOMPRESSOR_SCALE_METHOD_DESC">
@@ -47,16 +50,10 @@
                        label="PLG_PXLCOMPRESSOR_QUALITYJPG" description="PLG_PXLCOMPRESSOR_QUALITYJPG_DESC"/>
                 <field name="compression_png" type="integer" default="8" first="0" last="9" step="1" autofocus="true"
                        label="PLG_PXLCOMPRESSOR_COMPRESSIONPNG" description="PLG_PXLCOMPRESSOR_COMPRESSIONPNG_DESC"/>
-                <field name="safe_names" type="list" default="1" label="PLG_PXLCOMPRESSOR_SAFENAMES"
-                       description="PLG_PXLCOMPRESSOR_SAFENAMES_DESC">
-                    <option value="0">JNO</option>
-                    <option value="1">JYES</option>
-                </field>
-                <field name="enlarge_images" type="list" default="0" label="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES"
-                       description="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES_DESC">
-                    <option value="0">JNO</option>
-                    <option value="1">JYES</option>
-                </field>
+                <field name="safe_names" type="checkbox" default="1" label="PLG_PXLCOMPRESSOR_SAFENAMES"
+                       description="PLG_PXLCOMPRESSOR_SAFENAMES_DESC" value="1" />
+                <field name="enlarge_images" type="checkbox" default="0" label="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES"
+                       description="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES_DESC" value="1" />
 
                 <field name="width" type="text" default="1920" filter="integer" label="PLG_PXLCOMPRESSOR_WIDTH"
                        description="PLG_PXLCOMPRESSOR_WIDTH_DESC"/>

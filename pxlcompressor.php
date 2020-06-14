@@ -25,8 +25,7 @@
  */
 
 use Ilovepdf\
-{
-	Exceptions\AuthException,
+{Exceptions\AuthException,
 	Exceptions\DownloadException,
 	Exceptions\ProcessException,
 	Exceptions\StartException,
@@ -34,8 +33,7 @@ use Ilovepdf\
 	Ilovepdf
 };
 use Joomla\CMS\
-{
-	Date\Date,
+{Date\Date,
 	Factory,
 	Filesystem\File,
 	Filesystem\Folder,
@@ -184,7 +182,7 @@ class PlgSystemPxlcompressor extends CMSPlugin
 			$this->setQualityJpg();
 			$this->setCompressionPng();
 			$this->scaleMethod   = (int) $this->params->get('scale_method', 2);
-			$this->enlargeImages = (int) $this->params->get('enlarge_images ', 0);
+			$this->enlargeImages = (int) $this->params->get('enlarge_images', 0);
 			$width               = (int) $this->params->get('width', 0);
 			$height              = (int) $this->params->get('height', 0);
 
@@ -652,7 +650,6 @@ class PlgSystemPxlcompressor extends CMSPlugin
 	{
 		if (in_array($object->type, $this->allowedMimeTypes))
 		{
-
 			$imageObject = new Image($objectPath);
 			$scaleMethod = $this->scaleMethod;
 
@@ -664,6 +661,13 @@ class PlgSystemPxlcompressor extends CMSPlugin
 				$imageObject->toFile($filePath, $imageInformation['type']);
 			}
 
+//			const SCALE_FILL = 1;
+//			const SCALE_INSIDE = 2;
+//			const SCALE_OUTSIDE = 3;
+//			const CROP = 4;
+//			const CROP_RESIZE = 5;
+//			const SCALE_FIT = 6;
+
 			if (!empty($multisizeScaleMethod) && in_array($multisizeScaleMethod, [1, 2, 3, 4, 5, 6]))
 			{
 				$scaleMethod = (int) $multisizeScaleMethod;
@@ -671,10 +675,12 @@ class PlgSystemPxlcompressor extends CMSPlugin
 
 			if ($scaleMethod == 4)
 			{
+				//Crop
 				$imageObject->crop($width, $height, null, null, false);
 			}
 			elseif ($scaleMethod == 5)
 			{
+				//Crop_Resize
 				$imageObject->cropResize($width, $height, false);
 			}
 			else
@@ -682,21 +688,23 @@ class PlgSystemPxlcompressor extends CMSPlugin
 				$imageObject->resize($width, $height, false, $scaleMethod);
 			}
 
-			if (empty($this->enlargeImages))
+
+			if (  ! $this->enlargeImages )
 			{
 				$imageProperties = $imageObject->getImageFileProperties($objectPath);
 
+				//return false if resized image > original_image
 				if ($imageObject->getWidth() >= $imageProperties->width || $imageObject->getHeight() >= $imageProperties->height)
 				{
 					return false;
 				}
 			}
 
-			$image_save_path = ($multiresize ? $this->getThumbnailPath($objectPath, $imageObject->getWidth(), $imageObject->getHeight(), $multisizeSuffix) : $objectPath);
+			$imageSavePath = ($multiresize ? $this->getThumbnailPath($objectPath, $imageObject->getWidth(), $imageObject->getHeight(), $multisizeSuffix) : $objectPath);
 
-			$imageObject->toFile($image_save_path, $imageInformation['type'], array('quality' => $imageInformation['quality']));
+			$imageObject->toFile($imageSavePath, $imageInformation['type'], array('quality' => $imageInformation['quality']));
 
-			return $image_save_path;
+			return $imageSavePath;
 		}
 
 		return false;
