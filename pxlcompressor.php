@@ -24,8 +24,11 @@
  * @copyright      pixelstun.de
  */
 
+require_once('libs/pxlImage.php');
+
 use Ilovepdf\
-{Exceptions\AuthException,
+{
+	Exceptions\AuthException,
 	Exceptions\DownloadException,
 	Exceptions\ProcessException,
 	Exceptions\StartException,
@@ -33,7 +36,8 @@ use Ilovepdf\
 	Ilovepdf
 };
 use Joomla\CMS\
-{Date\Date,
+{
+	Date\Date,
 	Factory,
 	Filesystem\File,
 	Filesystem\Folder,
@@ -44,8 +48,8 @@ use Joomla\CMS\
 	Plugin\CMSPlugin,
 	Uri\Uri
 };
-use Joomla\Image\Image;
 use Joomla\Input\Files;
+use pxlImage as Image;
 
 defined('_JEXEC') or die('Restricted access');
 
@@ -685,11 +689,12 @@ class PlgSystemPxlcompressor extends CMSPlugin
 			}
 			else
 			{
-				$imageObject->resize($width, $height, false, $scaleMethod);
+				$fillColor = $this->params->get('fill_color','');
+				$imageObject->resize($width, $height, false, $scaleMethod, $fillColor);
 			}
 
 
-			if (  ! $this->enlargeImages )
+			if (!$this->enlargeImages)
 			{
 				$imageProperties = $imageObject->getImageFileProperties($objectPath);
 
@@ -701,7 +706,6 @@ class PlgSystemPxlcompressor extends CMSPlugin
 			}
 
 			$imageSavePath = ($multiresize ? $this->getThumbnailPath($objectPath, $imageObject->getWidth(), $imageObject->getHeight(), $multisizeSuffix) : $objectPath);
-
 			$imageObject->toFile($imageSavePath, $imageInformation['type'], array('quality' => $imageInformation['quality']));
 
 			return $imageSavePath;

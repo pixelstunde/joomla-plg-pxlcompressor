@@ -22,7 +22,7 @@
     </languages>
     <updateservers>
         <server type="extension" priority="1" name="PLG_PXLCOMPRESSOR">
-            https://pixelstun.de/extensions/joomla/plg_pxlcompressor/pxlcompressor.xml
+            https://raw.githubusercontent.com/pixelstunde/joomla-plg-pxlcompressor/master/xml
         </server>
     </updateservers>
     <config>
@@ -52,18 +52,20 @@
                        label="PLG_PXLCOMPRESSOR_COMPRESSIONPNG" description="PLG_PXLCOMPRESSOR_COMPRESSIONPNG_DESC"/>
                 <field name="safe_names" type="checkbox" default="1" label="PLG_PXLCOMPRESSOR_SAFENAMES"
                        description="PLG_PXLCOMPRESSOR_SAFENAMES_DESC" value="1" />
+                <field name="safe_names_no_sanitize" type="checkbox" default="0" label="PLG_PXLCOMPRESSOR_SAFENAMES_NO_SANITIZE"
+                       description="PLG_PXLCOMPRESSOR_SAFENAMES_NO_SANITIZE_DESC" value="1" />
                 <field name="enlarge_images" type="checkbox" default="0" label="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES"
                        description="PLG_PXLCOMPRESSOR_ENLARGE_IMAGES_DESC" value="1" />
-
                 <field name="width" type="text" default="1920" filter="integer" label="PLG_PXLCOMPRESSOR_WIDTH"
                        description="PLG_PXLCOMPRESSOR_WIDTH_DESC"/>
                 <field name="height" type="text" default="1080" filter="integer" label="PLG_PXLCOMPRESSOR_HEIGHT"
                        description="PLG_PXLCOMPRESSOR_HEIGHT_DESC"/>
-
                 <field name="multisizes" type="textarea" default="" rows="5" cols="50" filter="raw"
                        label="PLG_PXLCOMPRESSOR_MULTISIZES" description="PLG_PXLCOMPRESSOR_MULTISIZES_DESC"/>
                 <field name="multisize_path" type="text" default="" label="PLG_PXLCOMPRESSOR_MULTISIZE_PATH"
                        description="PLG_PXLCOMPRESSOR_MULTISIZE_PATH_DESC"/>
+                <field name="fill_color" type="color" default="" label="PLG_PXLCOMPRESSOR_FILL_COLOR"
+                       description="PLG_PXLCOMPRESSOR_FILL_COLOR_DESC"/>
             </fieldset>
             <fieldset name="images">
 
