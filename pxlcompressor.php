@@ -27,8 +27,7 @@
 require_once('libs/pxlImage.php');
 
 use Ilovepdf\
-{
-	Exceptions\AuthException,
+{Exceptions\AuthException,
 	Exceptions\DownloadException,
 	Exceptions\ProcessException,
 	Exceptions\StartException,
@@ -36,8 +35,7 @@ use Ilovepdf\
 	Ilovepdf
 };
 use Joomla\CMS\
-{
-	Date\Date,
+{Date\Date,
 	Factory,
 	Filesystem\File,
 	Filesystem\Folder,
@@ -606,11 +604,11 @@ class PlgSystemPxlcompressor extends CMSPlugin
 	{
 		$input   = Factory::getApplication()->input;
 		$context = $input->get('option');
-
-		if (($this->checkContext($context) && 'file.upload' == $input->get('task')))
+		if (($context == 'com_media') && 'file.upload' == $input->get('task'))
 		{
 			$input_files = new Files();
-			$file_data   = $input_files->get('Filedata', array(), 'raw');
+
+			$file_data = $input_files->get('Filedata', array(), 'raw');
 
 			foreach ($file_data as $key => $file)
 			{
@@ -618,7 +616,6 @@ class PlgSystemPxlcompressor extends CMSPlugin
 				{
 					// UTF8 to ASCII
 					$file['name'] = Transliterate::utf8_latin_to_ascii($file['name']);
-
 					// Make image name safe with core function
 					$file['name'] = File::makeSafe($file['name']);
 
@@ -689,7 +686,7 @@ class PlgSystemPxlcompressor extends CMSPlugin
 			}
 			else
 			{
-				$fillColor = $this->params->get('fill_color','');
+				$fillColor = $this->params->get('fill_color', '');
 				$imageObject->resize($width, $height, false, $scaleMethod, $fillColor);
 			}
 
