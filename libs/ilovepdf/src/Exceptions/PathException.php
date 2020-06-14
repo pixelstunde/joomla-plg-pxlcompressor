@@ -2,6 +2,8 @@
 
 namespace Ilovepdf\Exceptions;
 
-class PathException  extends \Exception {
+use Exception;
+
+class PathException  extends Exception {
 
 }

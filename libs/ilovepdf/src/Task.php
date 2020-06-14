@@ -2,9 +2,11 @@
 
 namespace Ilovepdf;
 
+use Exception;
 use Ilovepdf\Exceptions\StartException;
 use Ilovepdf\Exceptions\PathException;
 use Ilovepdf\Request\Body;
+use InvalidArgumentException;
 
 /**
  * Class Ilovepdf
@@ -73,8 +75,8 @@ class Task extends Ilovepdf
         $response = parent::sendRequest('get', 'start/' . $this->tool, $body);
         if (empty($response->body->server)) {
             throw new StartException('no server assigned on start');
-        };
-        $this->setWorkerServer('https://' . $response->body->server);
+        }
+	    $this->setWorkerServer('https://' . $response->body->server);
         $this->setTask($response->body->task);
     }
 
@@ -108,7 +110,7 @@ class Task extends Ilovepdf
         $taskId = $taskId ? $taskId : $this->getTaskId();
 
         if($server==null || $taskId==null){
-            throw new \Exception('Cannot get status if no file is uploaded');
+            throw new Exception('Cannot get status if no file is uploaded');
         }
         return parent::getStatus($this->getWorkerServer(), $this->getTaskId());
     }
@@ -294,7 +296,7 @@ class Task extends Ilovepdf
     public function execute()
     {
         if($this->task===null){
-            throw new \Exception('Current task not exists');
+            throw new Exception('Current task not exists');
         }
 
         $data = array_merge(
@@ -347,7 +349,7 @@ class Task extends Ilovepdf
      * @throws Exceptions\DownloadException
      * @throws Exceptions\ProcessException
      * @throws Exceptions\UploadException
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteFile($file){
         if (($key = array_search($file, $this->files)) !== false) {
@@ -366,7 +368,7 @@ class Task extends Ilovepdf
      */
     public function checkValues($value, $allowedValues){
         if(!in_array($value, $allowedValues)){
-            throw new \InvalidArgumentException('Invalid '.$this->tool.' value "'.$value.'". Must be one of: '.implode(',', $allowedValues));
+            throw new InvalidArgumentException('Invalid '.$this->tool.' value "'.$value.'". Must be one of: '.implode(',', $allowedValues));
         }
     }
 
@@ -440,7 +442,7 @@ class Task extends Ilovepdf
     public function setFileEncryption($value, $encryptKey=null)
     {
         if(count($this->files)>0){
-            throw new \Exception('Encrypth mode cannot be set after file upload');
+            throw new Exception('Encrypth mode cannot be set after file upload');
         }
 
         parent::setFileEncryption($value, $encryptKey);
@@ -488,7 +490,7 @@ class Task extends Ilovepdf
      * @param null $customInt
      * @param null $page
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function listTasks($tool=null, $status=null, $customInt=null, $page=null){
 

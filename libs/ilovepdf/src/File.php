@@ -1,6 +1,8 @@
 <?php
 
 namespace Ilovepdf;
+use InvalidArgumentException;
+
 /**
  * Class Ilovepdf
  *
@@ -61,7 +63,7 @@ class File
     function setRotation($degrees)
     {
         if($degrees!=0 && $degrees!=90 && $degrees!=180 && $degrees!=270){
-            throw new \InvalidArgumentException;
+            throw new InvalidArgumentException;
         }
         $this->rotate = $degrees;
         return true;

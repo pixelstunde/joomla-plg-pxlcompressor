@@ -1,6 +1,8 @@
 <?php
 
 namespace Ilovepdf;
+use InvalidArgumentException;
+
 /**
  * Class PdfjpgTask
  *
@@ -39,7 +41,7 @@ class PdfjpgTask extends Task
     public function setMode($mode)
     {
         if($mode!="pages" && $mode!="extract"){
-            throw new \InvalidArgumentException();
+            throw new InvalidArgumentException();
         }
         $this->pdfjpg_mode = $mode;
 
@@ -55,7 +57,7 @@ class PdfjpgTask extends Task
     public function setDpi($dpi)
     {
         if($dpi<24 || $dpi>500){
-            throw new \InvalidArgumentException('Invalid dpi value');
+            throw new InvalidArgumentException('Invalid dpi value');
         }
         $this->dpi = $dpi;
         return $this;

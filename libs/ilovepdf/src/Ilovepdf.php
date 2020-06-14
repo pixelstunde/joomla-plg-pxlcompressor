@@ -2,6 +2,7 @@
 
 namespace Ilovepdf;
 
+use Exception;
 use Ilovepdf\Exceptions\DownloadException;
 use Ilovepdf\Exceptions\ProcessException;
 use Ilovepdf\Exceptions\TaskException;
@@ -10,6 +11,7 @@ use Ilovepdf\Exceptions\StartException;
 use Ilovepdf\Exceptions\AuthException;
 use Ilovepdf\IlovepdfTool;
 use Ilovepdf\Request\Body;
+use InvalidArgumentException;
 
 /**
  * Class Ilovepdf
@@ -198,9 +200,9 @@ class Ilovepdf
                     if(strpos($endpoint, 'task')!=-1){
                         throw new TaskException('Invalid task id');
                     }
-                    throw new \Exception('Bad Request');
+                    throw new Exception('Bad Request');
                 }
-                throw new \Exception($response->body->error->message);
+                throw new Exception($response->body->error->message);
             }
         }
         return $response;
@@ -211,13 +213,13 @@ class Ilovepdf
      *
      * @return mixed Return implemented Task class for specified tool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newTask($tool='')
     {
         $classname = '\\Ilovepdf\\' . ucwords(strtolower($tool)) . 'Task';
         if (!class_exists($classname)) {
-            throw new \InvalidArgumentException();
+            throw new InvalidArgumentException();
         }
         return new $classname($this->getPublicKey(), $this->getSecretKey());
     }
@@ -290,7 +292,7 @@ class Ilovepdf
         }
         $len = strlen($encryptKey);
         if ($len != 16 && $len != 24 && $len != 32) {
-            throw new \InvalidArgumentException('Encrypt key shold have 16, 14 or 32 chars length');
+            throw new InvalidArgumentException('Encrypt key shold have 16, 14 or 32 chars length');
         }
         $this->encryptKey = $encryptKey;
     }

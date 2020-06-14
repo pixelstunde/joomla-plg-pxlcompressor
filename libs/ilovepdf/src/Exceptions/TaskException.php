@@ -2,7 +2,9 @@
 
 namespace Ilovepdf\Exceptions;
 
-class TaskException extends \Exception
+use Exception;
+
+class TaskException extends Exception
 {
 
 }

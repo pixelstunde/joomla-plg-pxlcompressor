@@ -2,6 +2,8 @@
 
 namespace Ilovepdf\Exceptions;
 
-class StartException  extends \Exception {
+use Exception;
+
+class StartException  extends Exception {
 
 }

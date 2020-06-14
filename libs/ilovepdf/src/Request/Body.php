@@ -2,22 +2,26 @@
 
 namespace Ilovepdf\Request;
 
+use CURLFile;
 use Ilovepdf\Request as Request;
 use Ilovepdf\Exception as Exception;
+use Traversable;
 
 class Body
 {
     /**
      * Prepares a file for upload. To be used inside the parameters declaration for a request.
+     *
      * @param string $filename The file path
      * @param string $mimetype MIME type
      * @param string $postname the file name
-     * @return string|\CURLFile
+     *
+     * @return string|CURLFile
      */
     public static function File($filename, $mimetype = '', $postname = '')
     {
         if (class_exists('CURLFile')) {
-            return new \CURLFile($filename, $mimetype, $postname);
+            return new CURLFile($filename, $mimetype, $postname);
         }
 
         if (function_exists('curl_file_create')) {
@@ -38,7 +42,7 @@ class Body
 
     public static function Form($data)
     {
-        if (is_array($data) || is_object($data) || $data instanceof \Traversable) {
+        if (is_array($data) || is_object($data) || $data instanceof Traversable) {
             return http_build_query(Request::buildHTTPCurlQuery($data));
         }
 

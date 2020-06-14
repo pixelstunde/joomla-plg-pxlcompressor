@@ -2,6 +2,8 @@
 
 namespace Ilovepdf;
 
+use ArrayAccess;
+
 /**
  * JSON Web Token implementation, based on this spec:
  * http://tools.ietf.org/html/draft-ietf-oauth-json-web-token-06
@@ -82,7 +84,7 @@ class JWT
             throw new UnexpectedValueException('Invalid claims encoding');
         }
         $sig = static::urlsafeB64Decode($cryptob64);
-        
+
         if (empty($header->alg)) {
             throw new UnexpectedValueException('Empty algorithm');
         }
@@ -92,7 +94,7 @@ class JWT
         if (!in_array($header->alg, $allowed_algs)) {
             throw new UnexpectedValueException('Algorithm not allowed');
         }
-        if (is_array($key) || $key instanceof \ArrayAccess) {
+        if (is_array($key) || $key instanceof ArrayAccess) {
             if (isset($header->kid)) {
                 $key = $key[$header->kid];
             } else {

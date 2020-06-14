@@ -2,6 +2,9 @@
 
 namespace Ilovepdf;
 
+use CURLFile;
+use Exception;
+
 class Request
 {
     private static $cookie = null;
@@ -290,7 +293,7 @@ class Request
                 $new_key = $key;
             }
 
-            if (!$value instanceof \CURLFile and (is_array($value) or is_object($value))) {
+            if (!$value instanceof CURLFile and (is_array($value) or is_object($value))) {
                 $result = array_merge($result, self::buildHTTPCurlQuery($value, $new_key));
             } else {
                 $result[$new_key] = $value;
@@ -302,12 +305,12 @@ class Request
 
     /**
      * Send a cURL request
-     * @param \Ilovepdf\Method|string $method HTTP method to use
-     * @param string $url URL to send the request to
-     * @param mixed $body request body
-     * @param array $headers additional headers to send
-     * @param string $username Authentication username (deprecated)
-     * @param string $password Authentication password (deprecated)
+     * @param Method|string $method   HTTP method to use
+     * @param string        $url      URL to send the request to
+     * @param mixed         $body     request body
+     * @param array         $headers  additional headers to send
+     * @param string        $username Authentication username (deprecated)
+     * @param string        $password Authentication password (deprecated)
      * @throws \Ilovepdf\Exception if a cURL error occurs
      * @return Response
      */
@@ -394,9 +397,9 @@ class Request
 
         if ($error) {
             if(strpos($error,'SSL certificate problem')){
-                throw new \Exception($error.' Try using  method verifySsl to false: "$ilovepdf->verifySsl(false)"');
+                throw new Exception($error.' Try using  method verifySsl to false: "$ilovepdf->verifySsl(false)"');
             }
-            throw new \Exception($error);
+            throw new Exception($error);
         }
 
         // Split the full response in its headers and body
