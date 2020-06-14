@@ -617,7 +617,8 @@ class PlgSystemPxlcompressor extends CMSPlugin
 	 * @return string file name
 	 * @since 1.4
 	 */
-	public static function getSafeFileName(String $file){
+	public static function getSafeFileName(string $file)
+	{
 
 		// UTF8 to ASCII
 		$file = Transliterate::utf8_latin_to_ascii($file);
@@ -659,6 +660,7 @@ class PlgSystemPxlcompressor extends CMSPlugin
 		if ($object->filepath != $original)
 		{
 			File::move($original, $object->filepath);
+
 			return true;
 		}
 
@@ -809,7 +811,6 @@ class PlgSystemPxlcompressor extends CMSPlugin
 	 * @param int    $out     size of output
 	 * @param string $service compression service used
 	 *
-	 * @return null
 	 * @throws Exception
 	 * @since 1.0
 	 */
@@ -827,5 +828,4 @@ class PlgSystemPxlcompressor extends CMSPlugin
 			. $service
 		);
 	}
-
 }

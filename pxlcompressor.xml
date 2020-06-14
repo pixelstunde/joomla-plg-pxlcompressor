@@ -22,7 +22,7 @@
     </languages>
     <updateservers>
         <server type="extension" priority="1" name="PLG_PXLCOMPRESSOR">
-            https://raw.githubusercontent.com/pixelstunde/joomla-plg-pxlcompressor/master/xml
+            https://raw.githubusercontent.com/pixelstunde/joomla-plg-pxlcompressor/master/updates.xml
         </server>
     </updateservers>
     <config>
