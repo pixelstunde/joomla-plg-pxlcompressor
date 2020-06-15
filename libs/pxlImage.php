@@ -1,4 +1,10 @@
 <?php
+/**
+ *  Adds background fill to Joomla Image resize function
+ * @since     1.5
+ * @copyright Christian Friedemann
+ * @license   GPL v3
+ */
 
 use Joomla\Image\Image;
 
@@ -58,7 +64,14 @@ class pxlImage extends Image
 		// Allow transparency for the new image handle.
 		imagealphablending($handle, false);
 		imagesavealpha($handle, true);
-
+		if (!empty($fillColor))
+		{
+			$fillColor = self::rgbaToArray($fillColor);
+			$color     = imagecolorallocatealpha($handle, (int) $fillColor[0], (int) $fillColor[1], (int) $fillColor[2], 127 - (int) ($fillColor[3] * 127));
+			imagecolortransparent($handle, $color);
+			imagefilledrectangle($handle, 0, 0, $width, $height, $color);
+			imagealphablending($handle, true);
+		}
 		if ($this->isTransparent())
 		{
 			// Get the transparent color values for the current image.
@@ -67,15 +80,12 @@ class pxlImage extends Image
 
 			// Set the transparent color values for the new image.
 			imagecolortransparent($handle, $color);
+		}
+		if (empty($fillColor))
+		{
 			imagefill($handle, 0, 0, $color);
 		}
 
-		if (!empty($fillColor))
-		{
-			$fillColor = self::hexrgb($fillColor);
-			$color     = imagecolorallocate($handle, $fillColor['red'], $fillColor['green'], $fillColor['blue']);
-			imagefill($handle, 0, 0, $color);
-		}
 
 		if (!$this->generateBestQuality)
 		{
@@ -126,12 +136,16 @@ class pxlImage extends Image
 		return $this;
 	}
 
-	protected static function hexrgb(string $hexstr)
+	/**
+	 * Get rgb color from hex string
+	 *
+	 * @param string $rgba
+	 *
+	 * @return int[]
+	 * @since 1.4
+	 */
+	protected static function rgbaToArray(string $rgba)
 	{
-		$int = hexdec($hexstr);
-
-		return array("red"   => 0xFF & ($int >> 0x10),
-		             "green" => 0xFF & ($int >> 0x8),
-		             "blue"  => 0xFF & $int);
+		return explode(',', substr($rgba, 5, -1));
 	}
 }

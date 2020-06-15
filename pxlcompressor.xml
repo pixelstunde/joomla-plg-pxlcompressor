@@ -62,7 +62,7 @@
                        label="PLG_PXLCOMPRESSOR_MULTISIZES" description="PLG_PXLCOMPRESSOR_MULTISIZES_DESC"/>
                 <field name="multisize_path" type="text" default="" label="PLG_PXLCOMPRESSOR_MULTISIZE_PATH"
                        description="PLG_PXLCOMPRESSOR_MULTISIZE_PATH_DESC"/>
-                <field name="fill_color" type="color" default="" label="PLG_PXLCOMPRESSOR_FILL_COLOR"
+                <field name="fill_color" type="color" format="rgba" default="" label="PLG_PXLCOMPRESSOR_FILL_COLOR"
                        description="PLG_PXLCOMPRESSOR_FILL_COLOR_DESC"/>
             </fieldset>
             <fieldset name="images">
