@@ -69,11 +69,12 @@ class pxlImage extends Image
 			$fillColor = self::rgbaToArray($fillColor);
 			$color     = imagecolorallocatealpha($handle, (int) $fillColor[0], (int) $fillColor[1], (int) $fillColor[2], 127 - (int) ($fillColor[3] * 127));
 			imagecolortransparent($handle, $color);
+			//faster than flood fill
 			imagefilledrectangle($handle, 0, 0, $width, $height, $color);
-			imagealphablending($handle, true);
 		}
 		if ($this->isTransparent())
 		{
+			imagealphablending($handle, true);
 			// Get the transparent color values for the current image.
 			$rgba  = imagecolorsforindex($this->getHandle(), imagecolortransparent($this->getHandle()));
 			$color = imagecolorallocatealpha($handle, $rgba['red'], $rgba['green'], $rgba['blue'], $rgba['alpha']);

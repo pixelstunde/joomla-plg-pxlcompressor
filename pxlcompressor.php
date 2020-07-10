@@ -229,7 +229,7 @@ class PlgSystemPxlcompressor extends CMSPlugin
 			if (empty($object->type))
 			{
 				//jce does not seem give type information as com_media, so we'll guess by extension
-				$moved = mime_content_type($object->filepath);
+				$moved = @mime_content_type($object->filepath);
 
 				if (!empty($moved))
 				{
@@ -237,7 +237,7 @@ class PlgSystemPxlcompressor extends CMSPlugin
 				}
 				else
 				{
-					$object->type = mime_content_type($object->tmp_name);
+					$object->type = @mime_content_type($object->tmp_name);
 				}
 			}
 
